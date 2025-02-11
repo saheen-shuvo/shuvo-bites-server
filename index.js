@@ -31,6 +31,31 @@ async function run() {
     const reviewCollection = client.db("shuvoBites").collection("reviews");
     const cartCollection = client.db("shuvoBites").collection("carts");
 
+
+    app.get('/allusers', async(req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.delete('/allusers/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    app.patch('/allusers/admin/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const updatedDoc = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
     app.post('/users', async(req, res) => {
       const user = req.body;
       // CHECK THE USER ALREADY EXIST
