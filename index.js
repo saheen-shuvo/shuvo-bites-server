@@ -44,7 +44,6 @@ async function run() {
 
     // MIDDLEWARE
     const verifyToken = (req, res, next) => {
-      console.log("inside verify token", req.headers.authorization);
       if (!req.headers.authorization) {
         return res.status(401).send({ message: "unauthorized access" });
       }
@@ -102,11 +101,9 @@ async function run() {
 
     app.get("/allusers/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
-      console.log("Received email from params:", email);
       if (!email) {
         return res.status(400).send({ message: "Email is required" });
       }
-      console.log("Decoded email from token:", req.decoded?.email);
       if (email !== req.decoded?.email) {
         return res.status(403).send({ message: "forbidden access" });
       }
@@ -228,7 +225,6 @@ async function run() {
     app.post("/payments", async (req, res) => {
       const payment = req.body;
       const paymentResult = await paymentCollection.insertOne(payment);
-      console.log("payment info", payment);
       // Carefully deleting each item from the cart
       const query = {
         _id: {
@@ -273,6 +269,17 @@ async function run() {
       const result = await paymentCollection
         .aggregate([
           {
+            $addFields: {
+              menuItemIds: {
+                $map: {
+                  input: "$menuItemIds",
+                  as: "id",
+                  in: { $toObjectId: "$$id" }
+                }
+              }
+            }
+          },
+          {
             $unwind: "$menuItemIds",
           },
           {
@@ -302,7 +309,7 @@ async function run() {
               _id: 0,
               category: "$_id",
               quantity: "$quantity",
-              revenue: '$revenue'
+              revenue: "$revenue",
             },
           },
         ])
@@ -311,10 +318,10 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
