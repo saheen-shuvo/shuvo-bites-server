@@ -172,10 +172,21 @@ async function run() {
       res.send(result);
     });
 
+    // GET ALL REVIEWS DATA
     app.get("/reviews", async (req, res) => {
       const result = await reviewCollection.find().toArray();
       res.send(result);
     });
+
+    // POST A REVIEW BY USER
+    app.post("/reviews", async(req, res) => {
+        const {name, details, image, rating} = req.body;
+        const reviewData = {
+          name, details, image, rating
+        }
+        const result = await reviewCollection.insertOne(reviewData);
+        res.send(result);
+    })
 
     // CARTS COLLECTION
     app.get("/carts", async (req, res) => {
