@@ -30,6 +30,7 @@ async function run() {
     const userCollection = client.db("shuvoBites").collection("users");
     const menuCollection = client.db("shuvoBites").collection("menu");
     const reviewCollection = client.db("shuvoBites").collection("reviews");
+    const bookingCollection = client.db("shuvoBites").collection("bookings");
     const cartCollection = client.db("shuvoBites").collection("carts");
     const paymentCollection = client.db("shuvoBites").collection("payments");
 
@@ -109,7 +110,6 @@ async function run() {
       }
       const query = { email: email };
       const user = await userCollection.findOne(query);
-      console.log("User found in database:", user);
       let admin = false;
       if (user) {
         admin = user?.role === "admin";
@@ -180,11 +180,21 @@ async function run() {
 
     // POST A REVIEW BY USER
     app.post("/reviews", async(req, res) => {
-        const {name, details, image, rating} = req.body;
+        const {name, details, image, rating, email} = req.body;
         const reviewData = {
-          name, details, image, rating
+          name, details, image, rating, email
         }
         const result = await reviewCollection.insertOne(reviewData);
+        res.send(result);
+    })
+
+    // POST A BOOKING BY USER
+    app.post("/bookings", async(req, res) => {
+        const {name, details, date, seats, email} = req.body;
+        const bookingData = {
+          name, details, date, seats, email, status: "pending"
+        }
+        const result = await bookingCollection.insertOne(bookingData);
         res.send(result);
     })
 
