@@ -117,6 +117,7 @@ async function run() {
       res.send({ admin });
     });
 
+    // POST THE NEW USER IN DB
     app.post("/allusers", async (req, res) => {
       const user = req.body;
       // CHECK THE USER ALREADY EXIST
@@ -188,6 +189,12 @@ async function run() {
         res.send(result);
     })
 
+    // GET ALL BOOKINGS DATA
+    app.get("/bookings", async (req, res) => {
+      const result = await bookingCollection.find().toArray();
+      res.send(result);
+    });
+
     // POST A BOOKING BY USER
     app.post("/bookings", async(req, res) => {
         const {name, details, date, seats, email} = req.body;
@@ -196,6 +203,22 @@ async function run() {
         }
         const result = await bookingCollection.insertOne(bookingData);
         res.send(result);
+    })
+
+    // GET ONLY BOOKINGS BY A USER EMAIL
+    app.get("/bookings/:email", async(req, res) => {
+      const email = req.params.email;
+      const query = {email : email};
+      const result = await bookingCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    // DELETE OR CANCEL BOOKING BY USER
+    app.delete('/bookings/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await bookingCollection.deleteOne(query);
+      res.send(result);
     })
 
     // CARTS COLLECTION
