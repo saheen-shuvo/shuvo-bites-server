@@ -180,14 +180,18 @@ async function run() {
     });
 
     // POST A REVIEW BY USER
-    app.post("/reviews", async(req, res) => {
-        const {name, details, image, rating, email} = req.body;
-        const reviewData = {
-          name, details, image, rating, email
-        }
-        const result = await reviewCollection.insertOne(reviewData);
-        res.send(result);
-    })
+    app.post("/reviews", async (req, res) => {
+      const { name, details, image, rating, email } = req.body;
+      const reviewData = {
+        name,
+        details,
+        image,
+        rating,
+        email,
+      };
+      const result = await reviewCollection.insertOne(reviewData);
+      res.send(result);
+    });
 
     // GET ALL BOOKINGS DATA
     app.get("/bookings", async (req, res) => {
@@ -196,30 +200,46 @@ async function run() {
     });
 
     // POST A BOOKING BY USER
-    app.post("/bookings", async(req, res) => {
-        const {name, details, date, seats, email} = req.body;
-        const bookingData = {
-          name, details, date, seats, email, status: "pending"
-        }
-        const result = await bookingCollection.insertOne(bookingData);
-        res.send(result);
-    })
+    app.post("/bookings", async (req, res) => {
+      const { name, details, date, seats, email } = req.body;
+      const bookingData = {
+        name,
+        details,
+        date,
+        seats,
+        email,
+        status: "pending",
+      };
+      const result = await bookingCollection.insertOne(bookingData);
+      res.send(result);
+    });
 
     // GET ONLY BOOKINGS BY A USER EMAIL
-    app.get("/bookings/:email", async(req, res) => {
+    app.get("/bookings/:email", async (req, res) => {
       const email = req.params.email;
-      const query = {email : email};
+      const query = { email: email };
       const result = await bookingCollection.find(query).toArray();
       res.send(result);
-    })
+    });
 
     // DELETE OR CANCEL BOOKING BY USER
-    app.delete('/bookings/:id', async(req, res) => {
+    app.delete("/bookings/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await bookingCollection.deleteOne(query);
       res.send(result);
-    })
+    });
+
+    // UPDATE BOOKING STATUS BY ADMIN
+    app.patch('/bookings/:id', async(req, res) => {
+      const {id} = req.params;
+      const updatedStatus = req.body.status;
+      const result = await bookingCollection.updateOne(
+        {_id: new ObjectId(id)},
+        {$set: {status: updatedStatus}}
+      );
+      res.send(result);
+  })
 
     // CARTS COLLECTION
     app.get("/carts", async (req, res) => {
@@ -318,10 +338,10 @@ async function run() {
                 $map: {
                   input: "$menuItemIds",
                   as: "id",
-                  in: { $toObjectId: "$$id" }
-                }
-              }
-            }
+                  in: { $toObjectId: "$$id" },
+                },
+              },
+            },
           },
           {
             $unwind: "$menuItemIds",
@@ -363,6 +383,9 @@ async function run() {
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
