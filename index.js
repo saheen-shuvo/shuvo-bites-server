@@ -231,15 +231,15 @@ async function run() {
     });
 
     // UPDATE BOOKING STATUS BY ADMIN
-    app.patch('/bookings/:id', async(req, res) => {
-      const {id} = req.params;
+    app.patch("/bookings/:id", async (req, res) => {
+      const { id } = req.params;
       const updatedStatus = req.body.status;
       const result = await bookingCollection.updateOne(
-        {_id: new ObjectId(id)},
-        {$set: {status: updatedStatus}}
+        { _id: new ObjectId(id) },
+        { $set: { status: updatedStatus } }
       );
       res.send(result);
-  })
+    });
 
     // CARTS COLLECTION
     app.get("/carts", async (req, res) => {
@@ -276,7 +276,7 @@ async function run() {
       });
     });
 
-    //PAYMENT HISTORY DATA
+    //GET PAYMENT HISTORY DATA BY EMAIL
     app.get("/payments/:email", verifyToken, async (req, res) => {
       const query = { email: req.params.email };
       if (req.params.email !== req.decoded.email) {
@@ -286,6 +286,32 @@ async function run() {
       res.send(result);
     });
 
+    //GET ALL PAYMENT HISTORY DATA
+    app.get("/payments", verifyToken, async (req, res) => {
+      const result = await paymentCollection.find().toArray();
+      res.send(result);
+    });
+
+    // UPDATE DELIVERY STATUS BY ADMIN
+    app.patch("/payments/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const updatedStatus = req.body.status;
+      const result = await paymentCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: updatedStatus } }
+      );
+      res.send(result);
+    });
+
+    // DELETE ORDER BY ADMIN
+    app.delete('/payments/:id', verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await paymentCollection.deleteOne(query);
+      res.send(result);
+    })
+
+    // POST PAYMENT INFO AND CLEAR CART
     app.post("/payments", async (req, res) => {
       const payment = req.body;
       const paymentResult = await paymentCollection.insertOne(payment);
@@ -299,7 +325,7 @@ async function run() {
       res.send({ paymentResult, deleteResult });
     });
 
-    // STATS/ANALYTICS
+    // STATS/ANALYTICS FOR ADMIN DASHBOARD
     app.get("/admin-stats", verifyToken, verifyAdmin, async (req, res) => {
       const totalUsers = await userCollection.estimatedDocumentCount();
       const totalMenuItems = await menuCollection.estimatedDocumentCount();
