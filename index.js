@@ -76,6 +76,7 @@ async function run() {
       res.send(result);
     });
 
+    // DELETE AN USER BY ADMIN
     app.delete("/allusers/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -83,6 +84,7 @@ async function run() {
       res.send(result);
     });
 
+    // UPDATE USER ROLE AS ADMIN BY ADMIN
     app.patch(
       "/allusers/admin/:id",
       verifyToken,
@@ -100,6 +102,7 @@ async function run() {
       }
     );
 
+    // GET ADMIN USER BY EMAIL
     app.get("/allusers/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       if (!email) {
@@ -131,17 +134,20 @@ async function run() {
       res.send(result);
     });
 
+    // GET ALL MENU's
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
 
+    // POST OR ADD MENU ITEM
     app.post("/menu", async (req, res) => {
       const item = req.body;
       const result = await menuCollection.insertOne(item);
       res.send(result);
     });
 
+    // UPDATE A MENU ITEM
     app.patch("/menu/:id", async (req, res) => {
       const item = req.body;
       const id = req.params.id;
@@ -159,6 +165,7 @@ async function run() {
       res.send(result);
     });
 
+    // DELETE A MENU BY ADMIN
     app.delete("/menu/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -166,6 +173,7 @@ async function run() {
       res.send(result);
     });
 
+    // GET OR FIND A MENU BY ITS MENU ID
     app.get("/menu/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -180,7 +188,7 @@ async function run() {
     });
 
     // POST A REVIEW BY USER
-    app.post("/reviews", async (req, res) => {
+    app.post("/reviews", verifyToken, async (req, res) => {
       const { name, details, image, rating, email } = req.body;
       const reviewData = {
         name,
@@ -194,13 +202,13 @@ async function run() {
     });
 
     // GET ALL BOOKINGS DATA
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", verifyToken, async (req, res) => {
       const result = await bookingCollection.find().toArray();
       res.send(result);
     });
 
     // POST A BOOKING BY USER
-    app.post("/bookings", async (req, res) => {
+    app.post("/bookings", verifyToken, async (req, res) => {
       const { name, details, date, seats, email } = req.body;
       const bookingData = {
         name,
@@ -215,15 +223,15 @@ async function run() {
     });
 
     // GET ONLY BOOKINGS BY A USER EMAIL
-    app.get("/bookings/:email", async (req, res) => {
+    app.get("/bookings/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await bookingCollection.find(query).toArray();
       res.send(result);
     });
 
-    // DELETE OR CANCEL BOOKING BY USER
-    app.delete("/bookings/:id", async (req, res) => {
+    // DELETE OR CANCEL BOOKING BY USER and ADMIN
+    app.delete("/bookings/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await bookingCollection.deleteOne(query);
@@ -231,7 +239,7 @@ async function run() {
     });
 
     // UPDATE BOOKING STATUS BY ADMIN
-    app.patch("/bookings/:id", async (req, res) => {
+    app.patch("/bookings/:id", verifyToken, verifyAdmin, async (req, res) => {
       const { id } = req.params;
       const updatedStatus = req.body.status;
       const result = await bookingCollection.updateOne(
@@ -249,13 +257,15 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/carts", async (req, res) => {
+    // POST ADDED ITEM TO CART
+    app.post("/carts", verifyToken, async (req, res) => {
       const cartItem = req.body;
       const result = await cartCollection.insertOne(cartItem);
       res.send(result);
     });
 
-    app.delete("/carts/:id", async (req, res) => {
+    // DELETE AN ITEM FROM CART
+    app.delete("/carts/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await cartCollection.deleteOne(query);
@@ -263,7 +273,7 @@ async function run() {
     });
 
     // PAYMENT INTENT
-    app.post("/create-payment-intent", async (req, res) => {
+    app.post("/create-payment-intent", verifyToken, async (req, res) => {
       const { price } = req.body;
       const amount = parseInt(price * 100);
       const paymentIntent = await stripe.paymentIntents.create({
@@ -293,7 +303,7 @@ async function run() {
     });
 
     // UPDATE DELIVERY STATUS BY ADMIN
-    app.patch("/payments/:id", verifyToken, async (req, res) => {
+    app.patch("/payments/:id", verifyToken, verifyAdmin, async (req, res) => {
       const { id } = req.params;
       const updatedStatus = req.body.status;
       const result = await paymentCollection.updateOne(
@@ -304,15 +314,15 @@ async function run() {
     });
 
     // DELETE ORDER BY ADMIN
-    app.delete('/payments/:id', verifyToken, async (req, res) => {
+    app.delete("/payments/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await paymentCollection.deleteOne(query);
       res.send(result);
-    })
+    });
 
     // POST PAYMENT INFO AND CLEAR CART
-    app.post("/payments", async (req, res) => {
+    app.post("/payments", verifyToken, async (req, res) => {
       const payment = req.body;
       const paymentResult = await paymentCollection.insertOne(payment);
       // Carefully deleting each item from the cart
