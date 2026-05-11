@@ -52,5 +52,4 @@ Backend API for the **Shuvo Bites** restaurant management platform.
 ## 📜 Available Scripts
 
 - `npm start` → Run the server
-- `npm test` → Placeholder test script (currently not implemented)
-
+- `npm test` → Currently returns a placeholder message (`no test specified`)
