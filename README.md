@@ -53,3 +53,4 @@ Backend API for the **Shuvo Bites** restaurant management platform.
 ## 📜 Available Scripts
 
 - `npm start` → Run the server
+- `npm test` → Run the current test command
