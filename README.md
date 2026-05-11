@@ -5,6 +5,7 @@ Backend API for the **Shuvo Bites** restaurant management platform.
 ## 🔗 Links
 
 - **Live API:** https://shuvo-bites-server.vercel.app
+- **Health Check:** `GET https://shuvo-bites-server.vercel.app/`
 - **Client Repository:** https://github.com/saheen-shuvo/shuvo-bites-client
 - **Server Repository:** https://github.com/saheen-shuvo/shuvo-bites-server
 
@@ -52,4 +53,3 @@ Backend API for the **Shuvo Bites** restaurant management platform.
 ## 📜 Available Scripts
 
 - `npm start` → Run the server
-- `npm test` → Currently returns a placeholder message (`no test specified`)
